@@ -6,7 +6,7 @@ import Loader from "../components/Loader";
 import { CartSkeleton } from "../components/Skeletons";
 
 const Cart = () => {
-    const {products, formatPrice, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems, isLoading: isProductsLoading} = useAppContext()
+    const {products, formatPrice, formatCurrency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems, isLoading: isProductsLoading} = useAppContext()
     const [cartArray, setCartArray] = useState([])
     const [addresses, setAddresses] = useState([])
     const [showAddress, setShowAddress] = useState(false)
@@ -176,17 +176,17 @@ const Cart = () => {
 
                 <div className="text-gray-500 mt-4 space-y-2">
                     <p className="flex justify-between">
-                        <span>Price</span><span>{formatPrice(getCartAmount())}</span>
+                        <span>Price</span><span>{formatCurrency(getCartAmount())}</span>
                     </p>
                     <p className="flex justify-between">
                         <span>Shipping Fee</span><span className="text-green-600">Free</span>
                     </p>
                     <p className="flex justify-between">
-                        <span>Tax (2%)</span><span>{formatPrice(getCartAmount() * 2 / 100)}</span>
+                        <span>Tax (2%)</span><span>{formatCurrency(getCartAmount() * 2 / 100)}</span>
                     </p>
                     <p className="flex justify-between text-lg font-medium mt-3">
                         <span>Total Amount:</span><span>
-                            {formatPrice(getCartAmount() + getCartAmount() * 2 / 100)}</span>
+                            {formatCurrency(getCartAmount() + getCartAmount() * 2 / 100)}</span>
                     </p>
                 </div>
 
