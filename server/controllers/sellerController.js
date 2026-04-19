@@ -6,6 +6,12 @@ export const sellerLogin = async (req, res) =>{
     try {
         const { email, password } = req.body;
 
+        console.log('Seller login attempt:', { email, password });
+        console.log('Expected credentials:', { 
+            email: process.env.SELLER_EMAIL, 
+            password: process.env.SELLER_PASSWORD 
+        });
+
         if(password === process.env.SELLER_PASSWORD && email === process.env.SELLER_EMAIL){
             const token = jwt.sign({email}, process.env.JWT_SECRET, {expiresIn: '7d'});
 

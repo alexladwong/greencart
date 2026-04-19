@@ -21,10 +21,10 @@ await connectCloudinary()
 const allowedOrigins = ['http://localhost:5173', '']
 
 // Middleware configuration
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 app.use(cors({origin: allowedOrigins, credentials: true}));
-
 
 app.get('/', (req, res) => res.send("API is Working"));
 app.use('/api/user', userRouter)

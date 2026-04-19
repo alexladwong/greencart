@@ -23,7 +23,9 @@ export const AppContextProvider = ({children})=>{
     const [user, setUser] = useState(null)
     const [isSeller, setIsSeller] = useState(false)
     const [showUserLogin, setShowUserLogin] = useState(false)
+    const [showForgotPassword, setShowForgotPassword] = useState(false)
     const [products, setProducts] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
 
     const [cartItems, setCartItems] = useState({})
     const [searchQuery, setSearchQuery] = useState({})
@@ -192,7 +194,7 @@ const formatNativePrice = (amount, currencyCode = "USD") => {
     },[cartItems])
 
     const value = {navigate, user, setUser, setIsSeller, isSeller,
-        showUserLogin, setShowUserLogin, products, currency, displayCurrency, supportedCurrencies, formatCurrency, formatPrice, formatNativePrice, addToCart, updateCartItem, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts, setCartItems
+        showUserLogin, setShowUserLogin, showForgotPassword, setShowForgotPassword, products, currency, displayCurrency, supportedCurrencies, formatCurrency, formatPrice, formatNativePrice, addToCart, updateCartItem, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts, setCartItems, isLoading, setIsLoading
     }
 
     return <AppContext.Provider value={value}>

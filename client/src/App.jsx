@@ -6,6 +6,10 @@ import { Toaster } from "react-hot-toast";
 import Footer from './components/Footer';
 import { useAppContext } from './context/AppContext';
 import Login from './components/Login';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
+import Profile from './pages/Profile';
+import Loader from './components/Loader';
 import AllProducts from './pages/AllProducts';
 import ProductCategory from './pages/ProductCategory';
 import ProductDetails from './pages/ProductDetails';
@@ -13,6 +17,7 @@ import Cart from './pages/Cart';
 import AddAddress from './pages/AddAddress';
 import MyOrders from './pages/MyOrders';
 import Contact from './pages/Contact';
+import PageNotFound from './pages/PageNotFound';
 import SellerLogin from './components/seller/SellerLogin';
 import SellerLayout from './pages/seller/SellerLayout';
 import AddProduct from './pages/seller/AddProduct';
@@ -22,14 +27,16 @@ import Loading from './components/Loading';
 
 const App = () => {
 
-  const isSellerPath = useLocation().pathname.includes("seller");
-  const {showUserLogin, isSeller} = useAppContext()
+  const isSellerPath = useLocation().pathname.includes("authxseller");
+  const {showUserLogin, showForgotPassword, isSeller, isLoading} = useAppContext()
 
   return (
     <div className='text-default min-h-screen text-gray-700 bg-white'>
 
-     {isSellerPath ? null : <Navbar/>} 
+     {isSellerPath ? null : <Navbar/>}
      {showUserLogin ? <Login/> : null}
+     {showForgotPassword ? <ForgotPassword/> : null}
+     {isLoading ? <Loader fullScreen={true} /> : null}
 
      <Toaster />
 
@@ -42,14 +49,17 @@ const App = () => {
           <Route path='/cart' element={<Cart/>} />
           <Route path='/add-address' element={<AddAddress/>} />
           <Route path='/my-orders' element={<MyOrders/>} />
+          <Route path='/profile' element={<Profile/>} />
           <Route path='/contact' element={<Contact/>} />
+          <Route path='/reset-password/:token' element={<ResetPassword/>} />
           <Route path='/loader' element={<Loading/>} />
-          <Route path='/admin' element={<Navigate to="/seller" replace />} />
-          <Route path='/seller' element={isSeller ? <SellerLayout/> : <SellerLogin/>}>
+          <Route path='/admin' element={<Navigate to="/authxseller" replace />} />
+          <Route path='/authxseller' element={isSeller ? <SellerLayout/> : <SellerLogin/>}>
             <Route index element={isSeller ? <AddProduct/> : null} />
             <Route path='product-list' element={<ProductList/>} />
             <Route path='orders' element={<Orders/>} />
           </Route>
+          <Route path='*' element={<PageNotFound />} />
         </Routes>
       </div>
      {!isSellerPath && <Footer/>}
