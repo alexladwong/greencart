@@ -6,7 +6,7 @@ import ProductCard from "../components/ProductCard";
 
 const ProductDetails = () => {
 
-    const {products, navigate, currency, addToCart} = useAppContext()
+    const {products, navigate, formatPrice, addToCart} = useAppContext()
     const {id} = useParams()
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [thumbnail, setThumbnail] = useState(null);
@@ -62,8 +62,8 @@ const ProductDetails = () => {
                     </div>
 
                     <div className="mt-6">
-                        <p className="text-gray-500/70 line-through">MRP: {currency}{product.price}</p>
-                        <p className="text-2xl font-medium">MRP: {currency}{product.offerPrice}</p>
+                        <p className="text-gray-500/70 line-through">MRP: {formatPrice(product.price, product.currency || "USD")}</p>
+                        <p className="text-2xl font-medium">MRP: {formatPrice(product.offerPrice, product.currency || "USD")}</p>
                         <span className="text-gray-500/70">(inclusive of all taxes)</span>
                     </div>
 

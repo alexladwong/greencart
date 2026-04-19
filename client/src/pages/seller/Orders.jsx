@@ -4,9 +4,10 @@ import { assets } from '../../assets/assets'
 import toast from 'react-hot-toast'
 
 const Orders = () => {
-    const {currency, axios} = useAppContext()
+    const {formatCurrency, axios} = useAppContext()
     const [orders, setOrders] = useState([])
     const [updatingOrderId, setUpdatingOrderId] = useState(null)
+    const [confirmingPaymentId, setConfirmingPaymentId] = useState(null)
 
     const orderStatuses = [
         "Order Placed",
@@ -15,6 +16,21 @@ const Orders = () => {
         "Delivered",
         "Cancelled",
     ]
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case "Delivered":
+                return "text-green-600"
+            case "Out for Delivery":
+                return "text-blue-600"
+            case "Processing":
+                return "text-amber-600"
+            case "Cancelled":
+                return "text-red-600"
+            default:
+                return "text-primary"
+        }
+    }
 
     const fetchOrders = async () =>{
         try {
@@ -48,6 +64,28 @@ const Orders = () => {
             toast.error(error.message)
         } finally {
             setUpdatingOrderId(null)
+        }
+    }
+
+    const confirmPayment = async (orderId) => {
+        try {
+            setConfirmingPaymentId(orderId)
+            const { data } = await axios.post('/api/order/payment', { orderId })
+
+            if (data.success) {
+                setOrders((prevOrders) =>
+                    prevOrders.map((order) =>
+                        order._id === orderId ? { ...order, isPaid: true } : order
+                    )
+                )
+                toast.success(data.message)
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        } finally {
+            setConfirmingPaymentId(null)
         }
     }
 
@@ -89,12 +127,25 @@ const Orders = () => {
                     </div>
 
                     <p className="font-medium text-lg my-auto">
-                    {currency}{order.amount}</p>
+                    {formatCurrency(order.amount, order.currency || "UGX")}</p>
 
                     <div className="flex flex-col text-sm md:text-base text-black/60">
                         <p>Method: {order.paymentType}</p>
                         <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                        <p>Payment: {order.isPaid ? "Paid" : "Pending"}</p>
+                        <p>
+                            Payment: <span className={order.isPaid ? "text-green-600 font-medium" : "text-amber-600 font-medium"}>
+                                {order.isPaid ? "Paid" : "Pending"}
+                            </span>
+                        </p>
+                        {!order.isPaid && (
+                            <button
+                                onClick={() => confirmPayment(order._id)}
+                                disabled={confirmingPaymentId === order._id}
+                                className="mt-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-white transition hover:bg-primary-dull disabled:cursor-not-allowed disabled:opacity-70"
+                            >
+                                {confirmingPaymentId === order._id ? "Confirming..." : "Confirm Payment"}
+                            </button>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-2 min-w-[180px]">
@@ -103,7 +154,7 @@ const Orders = () => {
                             value={order.status}
                             onChange={(e) => updateStatus(order._id, e.target.value)}
                             disabled={updatingOrderId === order._id}
-                            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none"
+                            className={`rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium outline-none ${getStatusColor(order.status)}`}
                         >
                             {orderStatuses.map((status) => (
                                 <option key={status} value={status}>

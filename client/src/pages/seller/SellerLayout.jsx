@@ -2,10 +2,12 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 const SellerLayout = () => {
 
     const { axios, navigate } = useAppContext();
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
 
     const sidebarLinks = [
@@ -30,27 +32,34 @@ const SellerLayout = () => {
 
     return (
         <>
-            <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white">
+            <div className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white">
                 <Link to='/'>
                     <img src={assets.logo} alt="log" className="cursor-pointer w-34 md:w-38" />
                 </Link>
                 <div className="flex items-center gap-5 text-gray-500">
-                    <p>Hi! Admin</p>
+                    <p className="hidden sm:block">Hi! Admin</p>
+                    <button
+                        onClick={() => setMobileNavOpen((prev) => !prev)}
+                        className="md:hidden rounded-md border border-gray-300 px-3 py-1 text-sm"
+                    >
+                        Menu
+                    </button>
                     <button onClick={logout} className='border rounded-full text-sm px-4 py-1'>Logout</button>
                 </div>
             </div>
-            <div className="flex">
-               <div className="md:w-64 w-16 border-r h-[95vh] text-base border-gray-300 pt-4 flex flex-col">
+            <div className="flex flex-col md:flex-row">
+               <div className={`${mobileNavOpen ? "flex" : "hidden"} md:flex w-full md:w-64 border-b md:border-b-0 md:border-r text-base border-gray-300 md:min-h-[calc(100vh-73px)] flex-col md:pt-4 bg-white`}>
                 {sidebarLinks.map((item) => (
                     <NavLink to={item.path} key={item.name} end={item.path === "/seller"}
+                        onClick={() => setMobileNavOpen(false)}
                         className={({isActive})=>`flex items-center py-3 px-4 gap-3 
-                            ${isActive ? "border-r-4 md:border-r-[6px] bg-primary/10 border-primary text-primary"
+                            ${isActive ? "md:border-r-[6px] bg-primary/10 border-primary text-primary"
                                 : "hover:bg-gray-100/90 border-white"
                             }`
                         }
                     >
                         <img src={item.icon} alt="" className="w-7 h-7" />
-                        <p className="md:block hidden text-center">{item.name}</p>
+                        <p className="block text-center">{item.name}</p>
                     </NavLink>
                 ))}
             </div> 

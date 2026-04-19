@@ -31,10 +31,10 @@ const Navbar = () => {
     },[searchQuery])
 
   return (
-    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
+    <nav className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white/95 backdrop-blur transition-all">
 
       <NavLink to='/' onClick={()=> setOpen(false)}>
-        <img className="h-9" src={assets.logo} alt="logo" />
+        <img className="h-8 sm:h-9" src={assets.logo} alt="logo" />
       </NavLink>
 
       <div className="hidden sm:flex items-center gap-8">
@@ -67,23 +67,23 @@ const Navbar = () => {
         )}
       </div>
 
-<div className='flex items-center gap-6 sm:hidden'>
+<div className='flex items-center gap-5 sm:hidden'>
       <div onClick={()=> navigate("/cart")} className="relative cursor-pointer">
           <img src={assets.nav_cart_icon} alt='cart' className='w-6 opacity-80'/>
           <button className="absolute -top-2 -right-3 text-xs text-white bg-primary w-[18px] h-[18px] rounded-full">{getCartCount()}</button>
         </div>
-    <button onClick={() => open ? setOpen(false) : setOpen(true)} aria-label="Menu" className="">
+    <button onClick={() => open ? setOpen(false) : setOpen(true)} aria-label="Menu" className="rounded-md p-1.5 hover:bg-primary/10">
         <img  src={assets.menu_icon} alt='menu'/>
       </button>
 </div>
       
 
       { open && (
-        <div className={`${open ? 'flex' : 'hidden'} absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}>
+        <div className={`${open ? 'flex' : 'hidden'} absolute top-full left-0 z-50 w-full border-b border-gray-200 bg-white/98 shadow-lg py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}>
         <NavLink to="/" onClick={()=> setOpen(false)}>Home</NavLink>
         <NavLink to="/products" onClick={()=> setOpen(false)}>All Product</NavLink>
         {user && 
-        <NavLink to="/products" onClick={()=> setOpen(false)}>My Orders</NavLink>
+        <NavLink to="/my-orders" onClick={()=> setOpen(false)}>My Orders</NavLink>
         }
         <NavLink to="/contact" onClick={()=> setOpen(false)}>Contact</NavLink>
 

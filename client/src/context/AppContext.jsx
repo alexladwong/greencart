@@ -10,8 +10,14 @@ axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 export const AppContext = createContext();
 
 export const AppContextProvider = ({children})=>{
-
-    const currency = import.meta.env.VITE_CURRENCY;
+    const displayCurrency = (import.meta.env.VITE_CURRENCY || "UGX").trim();
+    const currency = `${displayCurrency} `;
+    const currencyRatesToUGX = {
+        USD: Number(import.meta.env.VITE_USD_TO_UGX_RATE) || 3695.2,
+        KES: Number(import.meta.env.VITE_KES_TO_UGX_RATE) || 28.6,
+        UGX: 1,
+    };
+    const supportedCurrencies = ["USD", "UGX", "KES"];
 
     const navigate = useNavigate();
     const [user, setUser] = useState(null)
@@ -113,11 +119,51 @@ const getCartAmount = () =>{
     let totalAmount = 0;
     for (const items in cartItems){
         let itemInfo = products.find((product)=> product._id === items);
-        if(cartItems[items] > 0){
-            totalAmount += itemInfo.offerPrice * cartItems[items]
+        if(itemInfo && cartItems[items] > 0){
+            totalAmount += convertCurrency(itemInfo.offerPrice, itemInfo.currency || "USD", displayCurrency) * cartItems[items]
         }
     }
-    return Math.floor(totalAmount * 100) / 100;
+    return Math.round(totalAmount);
+}
+
+const getCurrencyLabel = (currencyCode) => {
+    switch (currencyCode) {
+        case "USD":
+            return "$";
+        case "KES":
+            return "KSh ";
+        case "UGX":
+        default:
+            return "UGX ";
+    }
+}
+
+const convertCurrency = (amount, fromCurrency = "USD", toCurrency = displayCurrency) => {
+    const normalizedAmount = Number(amount || 0);
+    if (fromCurrency === toCurrency) {
+        return normalizedAmount;
+    }
+
+    const amountInUGX = normalizedAmount * (currencyRatesToUGX[fromCurrency] || currencyRatesToUGX.USD);
+
+    if (toCurrency === "UGX") {
+        return amountInUGX;
+    }
+
+    return amountInUGX / (currencyRatesToUGX[toCurrency] || 1);
+}
+
+const formatCurrency = (amount, currencyCode = displayCurrency) => {
+    return `${getCurrencyLabel(currencyCode)}${Math.round(Number(amount || 0)).toLocaleString()}`
+}
+
+const formatPrice = (amount, sourceCurrency = "USD") => {
+    const convertedAmount = convertCurrency(amount, sourceCurrency, displayCurrency);
+    return formatCurrency(convertedAmount, displayCurrency)
+}
+
+const formatNativePrice = (amount, currencyCode = "USD") => {
+    return formatCurrency(amount, currencyCode)
 }
 
 
@@ -146,7 +192,7 @@ const getCartAmount = () =>{
     },[cartItems])
 
     const value = {navigate, user, setUser, setIsSeller, isSeller,
-        showUserLogin, setShowUserLogin, products, currency, addToCart, updateCartItem, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts, setCartItems
+        showUserLogin, setShowUserLogin, products, currency, displayCurrency, supportedCurrencies, formatCurrency, formatPrice, formatNativePrice, addToCart, updateCartItem, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts, setCartItems
     }
 
     return <AppContext.Provider value={value}>

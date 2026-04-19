@@ -11,8 +11,9 @@ const AddProduct = () => {
     const [category, setCategory] = useState('');
     const [price, setPrice] = useState('');
     const [offerPrice, setOfferPrice] = useState('');
+    const [currency, setCurrency] = useState('USD');
 
-    const {axios} = useAppContext()
+    const {axios, supportedCurrencies} = useAppContext()
 
     const onSubmitHandler = async (event) => {
         try {
@@ -22,6 +23,7 @@ const AddProduct = () => {
                 name,
                 description: description.split('\n'),
                 category,
+                currency,
                 price,
                 offerPrice
             }
@@ -39,6 +41,7 @@ const AddProduct = () => {
                 setName('');
                 setDescription('')
                 setCategory('')
+                setCurrency('USD')
                 setPrice('')
                 setOfferPrice('')
                 setFiles([])
@@ -95,12 +98,28 @@ const AddProduct = () => {
                 </div>
                 <div className="flex items-center gap-5 flex-wrap">
                     <div className="flex-1 flex flex-col gap-1 w-32">
-                        <label className="text-base font-medium" htmlFor="product-price">Product Price</label>
+                        <label className="text-base font-medium" htmlFor="currency">Currency</label>
+                        <select
+                            onChange={(e)=> setCurrency(e.target.value)}
+                            value={currency}
+                            id="currency"
+                            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                        >
+                            {supportedCurrencies.map((item) => (
+                                <option key={item} value={item}>{item}</option>
+                            ))}
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">
+                            Store this product in USD, UGX, or KES. The storefront will convert it for display.
+                        </p>
+                    </div>
+                    <div className="flex-1 flex flex-col gap-1 w-32">
+                        <label className="text-base font-medium" htmlFor="product-price">Product Price ({currency})</label>
                         <input onChange={(e)=> setPrice(e.target.value)} value={price}
                          id="product-price" type="number" placeholder="0" className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40" required />
                     </div>
                     <div className="flex-1 flex flex-col gap-1 w-32">
-                        <label className="text-base font-medium" htmlFor="offer-price">Offer Price</label>
+                        <label className="text-base font-medium" htmlFor="offer-price">Offer Price ({currency})</label>
                         <input onChange={(e)=> setOfferPrice(e.target.value)} value={offerPrice} 
                         id="offer-price" type="number" placeholder="0" className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40" required />
                     </div>

@@ -5,7 +5,7 @@ import { dummyOrders } from '../assets/assets'
 const MyOrders = () => {
 
     const [myOrders, setMyOrders] = useState([])
-    const {currency, axios, user} = useAppContext()
+    const {formatCurrency, formatPrice, axios, user} = useAppContext()
 
     const fetchMyOrders = async ()=>{
         try {
@@ -24,6 +24,21 @@ const MyOrders = () => {
         }
     },[user])
 
+    const getStatusColor = (status) => {
+        switch (status) {
+            case "Delivered":
+                return "text-green-600"
+            case "Out for Delivery":
+                return "text-blue-600"
+            case "Processing":
+                return "text-amber-600"
+            case "Cancelled":
+                return "text-red-600"
+            default:
+                return "text-primary"
+        }
+    }
+
   return (
     <div className='mt-16 pb-16'>
         <div className='flex flex-col items-end w-max mb-8'>
@@ -35,7 +50,7 @@ const MyOrders = () => {
                 <p className='flex justify-between md:items-center text-gray-400 md:font-medium max-md:flex-col'>
                     <span>OrderId : {order._id}</span>
                     <span>Payment : {order.paymentType}</span>
-                    <span>Total Amount : {currency}{order.amount}</span>
+                    <span>Total Amount : {formatCurrency(order.amount, order.currency || "UGX")}</span>
                 </p>
                 {order.items.map((item, index)=>(
                     <div key={index}
@@ -55,11 +70,13 @@ const MyOrders = () => {
 
                     <div className='flex flex-col justify-center md:ml-8 mb-4 md:mb-0'>
                         <p>Quantity: {item.quantity || "1"}</p>
-                        <p>Status: {order.status}</p>
+                        <p>
+                            Status: <span className={`font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
+                        </p>
                         <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
                     </div>
                     <p className='text-primary text-lg font-medium'>
-                        Amount: {currency}{item.product.offerPrice * item.quantity}
+                        Amount: {formatPrice(item.product.offerPrice * item.quantity, item.product.currency || "USD")}
                     </p>
                         
                     </div>

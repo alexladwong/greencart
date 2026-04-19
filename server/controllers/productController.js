@@ -5,6 +5,9 @@ import Product from "../models/Product.js"
 export const addProduct = async (req, res)=>{
     try {
         let productData = JSON.parse(req.body.productData)
+        productData.currency = productData.currency || "USD";
+        productData.price = Number(productData.price);
+        productData.offerPrice = Number(productData.offerPrice);
 
         const images = req.files
 

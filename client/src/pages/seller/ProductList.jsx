@@ -3,7 +3,7 @@ import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
 
 const ProductList = () => {
-    const {products, currency, axios, fetchProducts} = useAppContext()
+    const {products, formatNativePrice, formatPrice, axios, fetchProducts} = useAppContext()
 
     const toggleStock = async (id, inStock)=>{
         try {
@@ -28,6 +28,7 @@ const ProductList = () => {
                             <tr>
                                 <th className="px-4 py-3 font-semibold truncate">Product</th>
                                 <th className="px-4 py-3 font-semibold truncate">Category</th>
+                                <th className="px-4 py-3 font-semibold truncate hidden md:block">Currency</th>
                                 <th className="px-4 py-3 font-semibold truncate hidden md:block">Selling Price</th>
                                 <th className="px-4 py-3 font-semibold truncate">In Stock</th>
                             </tr>
@@ -42,7 +43,11 @@ const ProductList = () => {
                                         <span className="truncate max-sm:hidden w-full">{product.name}</span>
                                     </td>
                                     <td className="px-4 py-3">{product.category}</td>
-                                    <td className="px-4 py-3 max-sm:hidden">{currency}{product.offerPrice}</td>
+                                    <td className="px-4 py-3 max-sm:hidden">{product.currency || "USD"}</td>
+                                    <td className="px-4 py-3 max-sm:hidden">
+                                        <div className="font-medium text-gray-700">{formatNativePrice(product.offerPrice, product.currency || "USD")}</div>
+                                        <div className="text-xs text-gray-500">{formatPrice(product.offerPrice, product.currency || "USD")} display</div>
+                                    </td>
                                     <td className="px-4 py-3">
                                         <label className="relative inline-flex items-center cursor-pointer text-gray-900 gap-3">
                                             <input onClick={()=> toggleStock(product._id, !product.inStock)} checked={product.inStock} type="checkbox" className="sr-only peer" />

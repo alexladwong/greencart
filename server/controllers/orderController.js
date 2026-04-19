@@ -1,6 +1,17 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 
+const currencyRatesToUGX = {
+    USD: 3695.2,
+    KES: 28.6,
+    UGX: 1,
+}
+
+const convertToUGX = (amount, currency = "USD") => {
+    const rate = currencyRatesToUGX[currency] || currencyRatesToUGX.USD;
+    return Number(amount || 0) * rate;
+}
+
 // Place Order COD : /api/order/cod
 export const placeOrderCOD = async (req, res)=>{
     try {
@@ -11,7 +22,7 @@ export const placeOrderCOD = async (req, res)=>{
         // Calculate Amount Using Items
         let amount = await items.reduce(async (acc, item)=>{
             const product = await Product.findById(item.product);
-            return (await acc) + product.offerPrice * item.quantity;
+            return (await acc) + convertToUGX(product.offerPrice, product.currency) * item.quantity;
         }, 0)
 
         // Add Tax Charge (2%)
@@ -20,7 +31,8 @@ export const placeOrderCOD = async (req, res)=>{
         await Order.create({
             userId,
             items,
-            amount,
+            amount: Math.round(amount),
+            currency: "UGX",
             address,
             paymentType: "Cash on Delivery",
         });
@@ -78,6 +90,23 @@ export const updateOrderStatus = async (req, res) => {
         await Order.findByIdAndUpdate(orderId, { status });
 
         return res.json({ success: true, message: "Order status updated" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// Confirm Order Payment : /api/order/payment
+export const confirmOrderPayment = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+
+        if (!orderId) {
+            return res.json({ success: false, message: "Order ID is required" });
+        }
+
+        await Order.findByIdAndUpdate(orderId, { isPaid: true });
+
+        return res.json({ success: true, message: "Payment confirmed" });
     } catch (error) {
         res.json({ success: false, message: error.message });
     }
