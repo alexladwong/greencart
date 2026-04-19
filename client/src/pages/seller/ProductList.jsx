@@ -3,6 +3,7 @@ import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
 import { OrdersSkeleton } from '../../components/Skeletons'
 import { categories } from '../../assets/assets'
+import { assets } from '../../assets/assets'
 
 const ProductList = () => {
     const {products, formatNativePrice, formatPrice, axios, fetchProducts, isLoading, supportedCurrencies, getSellerRequestConfig} = useAppContext()
@@ -19,6 +20,8 @@ const ProductList = () => {
         offerPrice: '',
         currency: 'USD',
         inStock: true,
+        imagePreviews: [],
+        imageFiles: [],
     }), [])
     const [formState, setFormState] = useState(initialFormState)
 
@@ -33,6 +36,8 @@ const ProductList = () => {
             offerPrice: product.offerPrice ?? '',
             currency: product.currency || 'USD',
             inStock: Boolean(product.inStock),
+            imagePreviews: product.image || [],
+            imageFiles: [],
         })
     }
 
@@ -66,6 +71,25 @@ const ProductList = () => {
         }))
     }
 
+    const onImageChange = (index, file) => {
+        if (!file) {
+            return
+        }
+
+        setFormState((prev) => {
+            const nextFiles = [...prev.imageFiles]
+            const nextPreviews = [...prev.imagePreviews]
+            nextFiles[index] = file
+            nextPreviews[index] = URL.createObjectURL(file)
+
+            return {
+                ...prev,
+                imageFiles: nextFiles,
+                imagePreviews: nextPreviews,
+            }
+        })
+    }
+
     const saveProduct = async (event) => {
         event.preventDefault()
 
@@ -73,12 +97,22 @@ const ProductList = () => {
             setIsSaving(true)
             const payload = {
                 ...formState,
+                imagePreviews: undefined,
+                imageFiles: undefined,
                 price: Number(formState.price),
                 offerPrice: Number(formState.offerPrice),
                 description: formState.description,
             }
+            const formData = new FormData()
+            formData.append('productData', JSON.stringify(payload))
 
-            const { data } = await axios.post('/api/product/update', payload, getSellerRequestConfig())
+            formState.imageFiles.forEach((file, index) => {
+                if (file) {
+                    formData.append(`image${index}`, file)
+                }
+            })
+
+            const { data } = await axios.post('/api/product/update', formData, getSellerRequestConfig())
             if (data.success) {
                 toast.success(data.message)
                 await fetchProducts()
@@ -222,6 +256,31 @@ const ProductList = () => {
 
                         <form onSubmit={saveProduct} className="max-h-[85vh] overflow-y-auto px-5 py-5 sm:px-6">
                             <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="sm:col-span-2">
+                                    <label className="mb-2 block text-sm font-medium text-gray-700">Product Images</label>
+                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                        {Array.from({ length: 4 }).map((_, index) => (
+                                            <label key={index} htmlFor={`edit-image-${index}`} className="cursor-pointer">
+                                                <input
+                                                    id={`edit-image-${index}`}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    hidden
+                                                    onChange={(event) => onImageChange(index, event.target.files?.[0])}
+                                                />
+                                                <div className="overflow-hidden rounded-2xl border border-dashed border-gray-300 bg-gray-50">
+                                                    <img
+                                                        src={formState.imagePreviews[index] || assets.upload_area}
+                                                        alt={`Product slot ${index + 1}`}
+                                                        className="h-28 w-full object-cover"
+                                                    />
+                                                </div>
+                                                <p className="mt-2 text-center text-xs text-gray-500">Tap to replace image {index + 1}</p>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 <div className="sm:col-span-2">
                                     <label className="mb-1 block text-sm font-medium text-gray-700" htmlFor="edit-product-name">Product Name</label>
                                     <input

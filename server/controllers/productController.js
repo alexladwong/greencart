@@ -16,6 +16,15 @@ const normalizeDescription = (description = []) => {
     return [];
 }
 
+const uploadImages = async (images = []) => {
+    return Promise.all(
+        images.map(async (item) => {
+            const result = await cloudinary.uploader.upload(item.path, { resource_type: 'image' });
+            return result.secure_url;
+        })
+    );
+}
+
 // Add Product : /api/product/add
 export const addProduct = async (req, res)=>{
     try {
@@ -25,13 +34,7 @@ export const addProduct = async (req, res)=>{
         productData.offerPrice = Number(productData.offerPrice);
 
         const images = req.files
-
-        let imagesUrl = await Promise.all(
-            images.map(async (item)=>{
-                let result = await cloudinary.uploader.upload(item.path, {resource_type: 'image'});
-                return result.secure_url
-            })
-        )
+        const imagesUrl = await uploadImages(images)
 
         await Product.create({...productData, image: imagesUrl})
 
@@ -81,7 +84,8 @@ export const changeStock = async (req, res)=>{
 // Update Product : /api/product/update
 export const updateProduct = async (req, res) => {
     try {
-        const { id, name, description, category, price, offerPrice, currency, inStock } = req.body;
+        const productData = req.body.productData ? JSON.parse(req.body.productData) : req.body;
+        const { id, name, description, category, price, offerPrice, currency, inStock } = productData;
 
         if (!id) {
             return res.json({ success: false, message: "Product id is required" });
@@ -125,6 +129,27 @@ export const updateProduct = async (req, res) => {
             return res.json({ success: false, message: "Product description is required" });
         }
 
+        let updatedImages = [...existingProduct.image];
+        const incomingFiles = req.files || [];
+
+        if (incomingFiles.length) {
+            const uploadedImages = await Promise.all(
+                incomingFiles.map(async (file) => ({
+                    fieldname: file.fieldname,
+                    url: (await cloudinary.uploader.upload(file.path, { resource_type: 'image' })).secure_url,
+                }))
+            );
+
+            uploadedImages.forEach(({ fieldname, url }) => {
+                const slot = Number(fieldname.replace("image", ""));
+                if (Number.isInteger(slot) && slot >= 0) {
+                    updatedImages[slot] = url;
+                }
+            });
+
+            updatedImages = updatedImages.filter(Boolean);
+        }
+
         await Product.findByIdAndUpdate(id, {
             name: name.trim(),
             description: normalizedDescription,
@@ -133,6 +158,7 @@ export const updateProduct = async (req, res) => {
             offerPrice: parsedOfferPrice,
             currency,
             inStock: typeof inStock === "boolean" ? inStock : existingProduct.inStock,
+            image: updatedImages,
         });
 
         res.json({ success: true, message: "Product Updated" });
