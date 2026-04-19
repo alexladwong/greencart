@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { assets } from '../../assets/assets';
 
 const SellerLogin = () => {
-    const {isSeller, setIsSeller, navigate, axios} = useAppContext()
+    const {isSeller, setIsSeller, setSellerAuthToken, getSellerRequestConfig, navigate, axios} = useAppContext()
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -15,8 +15,19 @@ const SellerLogin = () => {
             setIsLoading(true);
             const {data} = await axios.post('/api/seller/login', {email, password})
             if(data.success){
-                setIsSeller(true)
-                navigate('/authxseller')
+                if (data.token) {
+                    setSellerAuthToken(data.token)
+                }
+
+                const authCheck = await axios.get('/api/seller/is-auth', getSellerRequestConfig());
+                if (authCheck.data.success) {
+                    setIsSeller(true)
+                    navigate('/authxseller/orders')
+                } else {
+                    setSellerAuthToken(null)
+                    setIsSeller(false)
+                    toast.error('Seller session could not be established. Please redeploy the backend or log in again.')
+                }
             }else{
                 toast.error(data.message)
             }

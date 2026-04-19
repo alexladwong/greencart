@@ -6,20 +6,22 @@ import { useState } from "react";
 
 const SellerLayout = () => {
 
-    const { axios, navigate } = useAppContext();
+    const { axios, navigate, setIsSeller, setSellerAuthToken } = useAppContext();
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
 
     const sidebarLinks = [
-        { name: "Add Product", path: "/seller", icon: assets.add_icon },
-        { name: "Product List", path: "/seller/product-list", icon: assets.product_list_icon },
-        { name: "Orders", path: "/seller/orders", icon: assets.order_icon },
+        { name: "Add Product", path: "/authxseller", icon: assets.add_icon },
+        { name: "Product List", path: "/authxseller/product-list", icon: assets.product_list_icon },
+        { name: "Orders", path: "/authxseller/orders", icon: assets.order_icon },
     ];
 
     const logout = async ()=>{
         try {
             const { data } = await axios.get('/api/seller/logout');
             if(data.success){
+                setSellerAuthToken(null)
+                setIsSeller(false)
                 toast.success(data.message)
                 navigate('/')
             }else{
@@ -50,7 +52,7 @@ const SellerLayout = () => {
             <div className="flex flex-col md:flex-row">
                <div className={`${mobileNavOpen ? "flex" : "hidden"} md:flex w-full md:w-64 border-b md:border-b-0 md:border-r text-base border-gray-300 md:min-h-[calc(100vh-73px)] flex-col md:pt-4 bg-white`}>
                 {sidebarLinks.map((item) => (
-                    <NavLink to={item.path} key={item.name} end={item.path === "/seller"}
+                    <NavLink to={item.path} key={item.name} end={item.path === "/authxseller"}
                         onClick={() => setMobileNavOpen(false)}
                         className={({isActive})=>`flex items-center py-3 px-4 gap-3 
                             ${isActive ? "md:border-r-[6px] bg-primary/10 border-primary text-primary"

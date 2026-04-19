@@ -11,6 +11,10 @@ const storedToken = localStorage.getItem("token");
 if (storedToken) {
     axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
 }
+const storedSellerToken = localStorage.getItem("sellerToken");
+if (storedSellerToken) {
+    axios.defaults.headers.common["x-seller-token"] = storedSellerToken;
+}
 
 export const AppContext = createContext();
 
@@ -35,10 +39,21 @@ export const AppContextProvider = ({children})=>{
     const [cartItems, setCartItems] = useState({})
     const [searchQuery, setSearchQuery] = useState("")
 
+    const getSellerRequestConfig = () => {
+        const token = localStorage.getItem("sellerToken");
+        return token ? { headers: { "x-seller-token": token } } : {};
+    }
+
   // Fetch Seller Status
   const fetchSeller = async ()=>{
     try {
-        const {data} = await axios.get('/api/seller/is-auth');
+        const sellerConfig = getSellerRequestConfig();
+        if (!sellerConfig.headers) {
+            setIsSeller(false)
+            return;
+        }
+
+        const {data} = await axios.get('/api/seller/is-auth', sellerConfig);
         if(data.success){
             setIsSeller(true)
         }else{
@@ -52,7 +67,7 @@ export const AppContextProvider = ({children})=>{
     // Fetch User Auth Status , User Data and Cart Items
 const fetchUser = async ()=>{
     try {
-        const {data} = await axios.get('api/user/is-auth');
+        const {data} = await axios.get('/api/user/is-auth');
         if (data.success){
             setUser(data.user)
             setCartItems(data.user.cartItems)
@@ -221,7 +236,17 @@ const formatNativePrice = (amount, currencyCode = "USD") => {
         }
     }
 
-    const value = {navigate, user, setUser, setAuthToken, setIsSeller, isSeller,
+    const setSellerAuthToken = (token) => {
+        if (token) {
+            localStorage.setItem("sellerToken", token);
+            axios.defaults.headers.common["x-seller-token"] = token;
+        } else {
+            localStorage.removeItem("sellerToken");
+            delete axios.defaults.headers.common["x-seller-token"];
+        }
+    }
+
+    const value = {navigate, user, setUser, setAuthToken, setSellerAuthToken, getSellerRequestConfig, setIsSeller, isSeller,
         showUserLogin, setShowUserLogin, showForgotPassword, setShowForgotPassword, products, currency, displayCurrency, supportedCurrencies, formatCurrency, formatPrice, formatNativePrice, addToCart, updateCartItem, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts, setCartItems, isLoading, setIsLoading
     }
 
