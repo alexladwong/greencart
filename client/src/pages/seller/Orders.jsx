@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { useAppContext } from '../../context/AppContext'
-import { assets, dummyOrders } from '../../assets/assets'
+import { assets } from '../../assets/assets'
 import toast from 'react-hot-toast'
 
 const Orders = () => {
     const {currency, axios} = useAppContext()
     const [orders, setOrders] = useState([])
+    const [updatingOrderId, setUpdatingOrderId] = useState(null)
+
+    const orderStatuses = [
+        "Order Placed",
+        "Processing",
+        "Out for Delivery",
+        "Delivered",
+        "Cancelled",
+    ]
 
     const fetchOrders = async () =>{
         try {
@@ -19,6 +28,28 @@ const Orders = () => {
             toast.error(error.message)
         }
     };
+
+    const updateStatus = async (orderId, status) => {
+        try {
+            setUpdatingOrderId(orderId)
+            const { data } = await axios.post('/api/order/status', { orderId, status })
+
+            if (data.success) {
+                setOrders((prevOrders) =>
+                    prevOrders.map((order) =>
+                        order._id === orderId ? { ...order, status } : order
+                    )
+                )
+                toast.success(data.message)
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        } finally {
+            setUpdatingOrderId(null)
+        }
+    }
 
 
     useEffect(()=>{
@@ -64,6 +95,22 @@ const Orders = () => {
                         <p>Method: {order.paymentType}</p>
                         <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
                         <p>Payment: {order.isPaid ? "Paid" : "Pending"}</p>
+                    </div>
+
+                    <div className="flex flex-col gap-2 min-w-[180px]">
+                        <label className="text-sm text-black/60">Order Status</label>
+                        <select
+                            value={order.status}
+                            onChange={(e) => updateStatus(order._id, e.target.value)}
+                            disabled={updatingOrderId === order._id}
+                            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none"
+                        >
+                            {orderStatuses.map((status) => (
+                                <option key={status} value={status}>
+                                    {status}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
             ))}

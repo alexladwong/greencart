@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
-import { assets, dummyAddress } from "../assets/assets";
+import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
 
 const Cart = () => {
@@ -9,8 +9,6 @@ const Cart = () => {
     const [addresses, setAddresses] = useState([])
     const [showAddress, setShowAddress] = useState(false)
     const [selectedAddress, setSelectedAddress] = useState(null)
-    const [paymentOption, setPaymentOption] = useState("COD")
-
     const getCart = ()=>{
         let tempArray = []
         for(const key in cartItems){
@@ -44,34 +42,18 @@ const Cart = () => {
                 return toast.error("Please select an address")
             }
 
-            // Place Order with COD
-            if(paymentOption === "COD"){
-                const {data} = await axios.post('/api/order/cod', {
-                    userId: user._id,
-                    items: cartArray.map(item=> ({product: item._id, quantity: item.quantity})),
-                    address: selectedAddress._id
-                })
+            const {data} = await axios.post('/api/order/cod', {
+                userId: user._id,
+                items: cartArray.map(item=> ({product: item._id, quantity: item.quantity})),
+                address: selectedAddress._id
+            })
 
-                if(data.success){
-                    toast.success(data.message)
-                    setCartItems({})
-                    navigate('/my-orders')
-                }else{
-                    toast.error(data.message)
-                }
+            if(data.success){
+                toast.success(data.message)
+                setCartItems({})
+                navigate('/my-orders')
             }else{
-                // Place Order with Stripe
-                const {data} = await axios.post('/api/order/stripe', {
-                    userId: user._id,
-                    items: cartArray.map(item=> ({product: item._id, quantity: item.quantity})),
-                    address: selectedAddress._id
-                })
-
-                if(data.success){
-                    window.location.replace(data.url)
-                }else{
-                    toast.error(data.message)
-                }
+                toast.error(data.message)
             }
         } catch (error) {
             toast.error(error.message)
@@ -168,10 +150,9 @@ const Cart = () => {
 
                     <p className="text-sm font-medium uppercase mt-6">Payment Method</p>
 
-                    <select onChange={e => setPaymentOption(e.target.value)} className="w-full border border-gray-300 bg-white px-3 py-2 mt-2 outline-none">
-                        <option value="COD">Cash On Delivery</option>
-                        <option value="Online">Online Payment</option>
-                    </select>
+                    <div className="w-full border border-gray-300 bg-white px-3 py-2 mt-2 text-gray-700">
+                        Cash on Delivery
+                    </div>
                 </div>
 
                 <hr className="border-gray-300" />
@@ -193,7 +174,7 @@ const Cart = () => {
                 </div>
 
                 <button onClick={placeOrder} className="w-full py-3 mt-6 cursor-pointer bg-primary text-white font-medium hover:bg-primary-dull transition">
-                    {paymentOption === "COD" ? "Place Order" : "Proceed to Checkout"}
+                    Place Order
                 </button>
             </div>
         </div>
