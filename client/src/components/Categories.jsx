@@ -7,7 +7,7 @@ const Categories = () => {
     const {navigate} = useAppContext()
 
   return (
-    <div className='mt-12 md:mt-16'>
+    <div className='mt-12 md:mt-4'>
       <p className='text-2xl md:text-3xl font-medium'>Categories</p>
       <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 mt-5 md:mt-6 gap-3 md:gap-6'>
 

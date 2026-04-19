@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
 
 const ProductList = () => {
     const {products, formatNativePrice, formatPrice, axios, fetchProducts} = useAppContext()
+    const [togglingStockId, setTogglingStockId] = useState(null)
 
     const toggleStock = async (id, inStock)=>{
         try {
+            setTogglingStockId(id)
             const { data } = await axios.post('/api/product/stock', {id, inStock});
             if (data.success){
                 fetchProducts();
@@ -16,6 +18,8 @@ const ProductList = () => {
             }
         } catch (error) {
             toast.error(error.message)
+        } finally {
+            setTogglingStockId(null)
         }
     }
   return (
@@ -50,9 +54,15 @@ const ProductList = () => {
                                     </td>
                                     <td className="px-4 py-3">
                                         <label className="relative inline-flex items-center cursor-pointer text-gray-900 gap-3">
-                                            <input onClick={()=> toggleStock(product._id, !product.inStock)} checked={product.inStock} type="checkbox" className="sr-only peer" />
-                                            <div className="w-12 h-7 bg-slate-300 rounded-full peer peer-checked:bg-blue-600 transition-colors duration-200"></div>
-                                            <span className="dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></span>
+                                            <input 
+                                                onClick={()=> toggleStock(product._id, !product.inStock)} 
+                                                checked={product.inStock} 
+                                                type="checkbox" 
+                                                className="sr-only peer"
+                                                disabled={togglingStockId === product._id}
+                                            />
+                                            <div className={`w-12 h-7 rounded-full peer transition-colors duration-200 ${togglingStockId === product._id ? 'bg-gray-400' : 'bg-slate-300 peer-checked:bg-blue-600'}`}></div>
+                                            <span className={`dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5 ${togglingStockId === product._id ? 'opacity-50' : ''}`}></span>
                                         </label>
                                     </td>
                                 </tr>
