@@ -9,17 +9,17 @@ const Categories = () => {
   return (
     <div className='mt-12 md:mt-4'>
       <p className='text-2xl md:text-3xl font-medium'>Categories</p>
-      <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 mt-5 md:mt-6 gap-3 md:gap-6'>
+      <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-7 mt-4 md:mt-4 gap-2 md:gap-4'>
 
         {categories.map((category, index)=>(
-            <div key={index} className='group cursor-pointer py-4 md:py-5 px-3 gap-2 rounded-2xl flex flex-col justify-center items-center text-center'
+            <div key={index} className='group cursor-pointer py-2 md:py-1 px-1.5 gap-2 rounded-tl-4xl rounded-tr-4xl flex flex-col justify-center items-center text-center'
             style={{backgroundColor: category.bgColor}}
             onClick={()=>{
                 navigate(`/products/${category.path.toLowerCase()}`);
                 scrollTo(0,0)
             }}
             >
-                <img src={category.image} alt={category.text} className='group-hover:scale-108 transition max-w-24 md:max-w-28'/>
+                <img src={category.image} alt={category.text} className='group-hover:scale-108 transition max-w-16 md:max-w-20'/>
                 <p className='text-sm font-medium leading-5'>{category.text}</p>
             </div>
                     
