@@ -28,7 +28,7 @@ export const AppContextProvider = ({children})=>{
     const [isLoading, setIsLoading] = useState(false)
 
     const [cartItems, setCartItems] = useState({})
-    const [searchQuery, setSearchQuery] = useState({})
+    const [searchQuery, setSearchQuery] = useState("")
 
   // Fetch Seller Status
   const fetchSeller = async ()=>{
@@ -62,6 +62,7 @@ const fetchUser = async ()=>{
     // Fetch All Products
     const fetchProducts = async ()=>{
         try {
+            setIsLoading(true)
             const { data } = await axios.get('/api/product/list')
             if(data.success){
                 setProducts(data.products)
@@ -70,11 +71,20 @@ const fetchUser = async ()=>{
             }
         } catch (error) {
             toast.error(error.message)
+        } finally {
+            setIsLoading(false)
         }
     }
 
 // Add Product to Cart
-const addToCart = (itemId)=>{
+const addToCart = async (itemId)=>{
+    const product = products.find((item) => item._id === itemId);
+
+    if (!product?.inStock) {
+        toast.error("This product is currently out of stock");
+        return false;
+    }
+
     let cartData = structuredClone(cartItems);
 
     if(cartData[itemId]){
@@ -84,6 +94,7 @@ const addToCart = (itemId)=>{
     }
     setCartItems(cartData);
     toast.success("Added to Cart")
+    return true;
 }
 
   // Update Cart Item Quantity

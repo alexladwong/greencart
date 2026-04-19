@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { dummyOrders } from '../assets/assets'
 import Loader from '../components/Loader'
+import { OrdersSkeleton } from '../components/Skeletons'
 
 const MyOrders = () => {
 
@@ -46,7 +47,7 @@ const MyOrders = () => {
 
   return (
     <div className='mt-16 pb-16'>
-        {isLoading ? <Loader /> : (
+        {isLoading ? <OrdersSkeleton /> : (
             <>
                 <div className='flex flex-col items-end w-max mb-8'>
                     <p className='text-2xl font-medium uppercase'>My orders</p>

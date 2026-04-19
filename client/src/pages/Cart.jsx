@@ -3,9 +3,10 @@ import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
 import Loader from "../components/Loader";
+import { CartSkeleton } from "../components/Skeletons";
 
 const Cart = () => {
-    const {products, formatPrice, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems} = useAppContext()
+    const {products, formatPrice, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems, isLoading: isProductsLoading} = useAppContext()
     const [cartArray, setCartArray] = useState([])
     const [addresses, setAddresses] = useState([])
     const [showAddress, setShowAddress] = useState(false)
@@ -15,6 +16,9 @@ const Cart = () => {
         let tempArray = []
         for(const key in cartItems){
             const product = products.find((item)=>item._id === key)
+            if(!product){
+                continue;
+            }
             product.quantity = cartItems[key]
             tempArray.push(product)
         }
@@ -81,6 +85,10 @@ const Cart = () => {
         }
     },[user])
     
+    if (isProductsLoading && products.length === 0) {
+        return <CartSkeleton />;
+    }
+
     return products.length > 0 && cartItems ? (
         <div className="flex flex-col md:flex-row mt-16">
             {isLoading && <Loader fullScreen={true} />}
