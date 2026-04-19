@@ -4,6 +4,32 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 
+const resolveFrontendOrigin = (req) => {
+    const configuredOrigin = process.env.FRONTEND_URL || process.env.CLIENT_URL;
+    if (configuredOrigin) {
+        return configuredOrigin.split(',')[0].trim().replace(/\/$/, '');
+    }
+
+    const requestOrigin = req.get('origin');
+    if (requestOrigin) {
+        return requestOrigin.replace(/\/$/, '');
+    }
+
+    const forwardedProto = req.headers['x-forwarded-proto'];
+    const forwardedHost = req.headers['x-forwarded-host'];
+    if (forwardedProto && forwardedHost) {
+        return `${forwardedProto}://${forwardedHost}`.replace(/\/$/, '');
+    }
+
+    const host = req.get('host');
+    if (host) {
+        const protocol = req.protocol || 'https';
+        return `${protocol}://${host}`.replace(/\/$/, '');
+    }
+
+    return 'http://localhost:5173';
+}
+
 // Register User : /api/user/register
 export const register = async (req, res)=>{
     try {
@@ -144,7 +170,7 @@ export const forgotPassword = async (req, res) => {
             }
         });
 
-        const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+        const resetUrl = `${resolveFrontendOrigin(req)}/reset-password/${resetToken}`;
 
         const mailOptions = {
             from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,

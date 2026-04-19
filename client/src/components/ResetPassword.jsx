@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 const ResetPassword = () => {
 
-    const {axios, setUser} = useAppContext()
+    const {axios, setUser, setAuthToken} = useAppContext()
     const {token} = useParams()
     const navigate = useNavigate()
     const [password, setPassword] = React.useState("");
@@ -35,6 +35,9 @@ const ResetPassword = () => {
             });
             if (data.success){
                 toast.success(data.message)
+                if (data.token) {
+                    setAuthToken(data.token)
+                }
                 setUser(data.user)
                 setTimeout(() => {
                     navigate('/profile')
@@ -125,7 +128,7 @@ const ResetPassword = () => {
             </button>
             
             <p className="text-center text-sm mt-4">
-                Remember your password? <span onClick={() => navigate('/login')} className="text-primary cursor-pointer">Back to Login</span>
+                Remember your password? <span onClick={() => navigate('/')} className="text-primary cursor-pointer">Back to Login</span>
             </p>
         </form>
     </div>
