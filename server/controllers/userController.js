@@ -32,7 +32,7 @@ export const register = async (req, res)=>{
             maxAge: 7 * 24 * 60 * 60 * 1000, // Cookie expiration time
         })
 
-        return res.json({success: true, user: {email: user.email, name: user.name}})
+        return res.json({success: true, token, user: {email: user.email, name: user.name, _id: user._id}})
     } catch (error) {
         console.log(error.message);
         res.json({ success: false, message: error.message });
@@ -68,7 +68,7 @@ export const login = async (req, res)=>{
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
-        return res.json({success: true, user: {email: user.email, name: user.name}})
+        return res.json({success: true, token, user: {email: user.email, name: user.name, _id: user._id}})
     } catch (error) {
         console.log(error.message);
         res.json({ success: false, message: error.message });
@@ -318,7 +318,7 @@ export const resetPassword = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
         })
 
-        return res.json({ success: true, message: 'Password reset successful', user: {email: user.email, name: user.name} });
+        return res.json({ success: true, message: 'Password reset successful', token: authToken, user: {email: user.email, name: user.name, _id: user._id} });
     } catch (error) {
         console.log(error.message);
         res.json({ success: false, message: error.message });

@@ -1,7 +1,10 @@
 import jwt from 'jsonwebtoken';
 
 const authUser = async (req, res, next)=>{
-    const {token} = req.cookies;
+    const {token: cookieToken} = req.cookies;
+    const authHeader = req.headers.authorization;
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+    const token = cookieToken || bearerToken;
 
     if(!token){
         return res.json({ success: false, message: 'Not Authorized' });

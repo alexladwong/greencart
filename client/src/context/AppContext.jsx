@@ -7,6 +7,11 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
+const storedToken = localStorage.getItem("token");
+if (storedToken) {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+}
+
 export const AppContext = createContext();
 
 export const AppContextProvider = ({children})=>{
@@ -51,6 +56,8 @@ const fetchUser = async ()=>{
         if (data.success){
             setUser(data.user)
             setCartItems(data.user.cartItems)
+        } else {
+            setUser(null)
         }
     } catch (error) {
         setUser(null)
@@ -204,7 +211,17 @@ const formatNativePrice = (amount, currencyCode = "USD") => {
         }
     },[cartItems])
 
-    const value = {navigate, user, setUser, setIsSeller, isSeller,
+    const setAuthToken = (token) => {
+        if (token) {
+            localStorage.setItem("token", token);
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        } else {
+            localStorage.removeItem("token");
+            delete axios.defaults.headers.common["Authorization"];
+        }
+    }
+
+    const value = {navigate, user, setUser, setAuthToken, setIsSeller, isSeller,
         showUserLogin, setShowUserLogin, showForgotPassword, setShowForgotPassword, products, currency, displayCurrency, supportedCurrencies, formatCurrency, formatPrice, formatNativePrice, addToCart, updateCartItem, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts, setCartItems, isLoading, setIsLoading
     }
 
