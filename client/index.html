@@ -10,10 +10,43 @@
     <div id="root"></div>
    
 
-    <script
-      src="https://ai-apigenerator.vercel.app/api/embed/widget?publicKey=pub_goal&assistantId=assistant_shop_product_guide&instanceId=shop-product-guide"
-      defer
-    ></script>
+   <script>
+  window.ShopAIWidgetContext = {
+    pageType: "ecommerce_catalog",
+    pageTitle: document.title,
+    pageUrl: window.location.href,
+    categories: ["Vegetables", "Bakery", "Fruits"],
+    products: [
+      {
+        id: "fresh-cabbage",
+        name: "Fresh Cabbage",
+        category: "Vegetables",
+        url: "/fresh-cabbage",
+        inStock: true
+      },
+      {
+        id: "french-white-bread",
+        name: "French White Bread",
+        category: "Bakery",
+        url: "/french-white-bread",
+        inStock: true
+      },
+      {
+        id: "fresh-avocado-fruits",
+        name: "Fresh avocado fruits",
+        category: "Fruits",
+        url: "/fresh-avocado-fruits",
+        inStock: true
+      }
+    ],
+    selectedProduct: null
+  };
+</script>
+
+<script
+  src="https://ai-apigenerator.vercel.app/api/embed/widget?publicKey=pub_goal&assistantId=assistant_shop_product_guide&instanceId=shop-product-guide"
+  defer
+></script>
 
     <script type="module" src="/src/main.jsx"></script>
   </body>
